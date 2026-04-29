@@ -25,3 +25,9 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Artifacts
+
+- **`artifacts/api-server`** — Express API stub at `/api`.
+- **`artifacts/mockup-sandbox`** — design canvas.
+- **`artifacts/pharma-track`** (path `/`) — **Predictive Pharmaceutical Tracking & Provenance System**. React + Vite + Tailwind v4 + shadcn/ui dark "mission-control" dashboard. Frontend-only (no backend). Six pages: Overview, Add Batch (Manufacturer), Track (timeline), Verify (counterfeit detection), AI Insights (recharts forecasts), Smart Routing (SVG map). All blockchain logic runs client-side via Web Crypto SubtleCrypto SHA-256 (`src/lib/blockchain.ts`). State + seed data in `src/lib/store.ts`, persisted to `localStorage` under key `pharma-track-state-v1`. Seeded with 8 batches; counterfeit demo ID is `CTRF-9981`; Paracetamol +52% forecast surge is hardcoded for demo.
