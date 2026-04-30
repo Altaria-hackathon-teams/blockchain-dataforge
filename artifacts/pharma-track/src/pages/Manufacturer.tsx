@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Boxes, Hash, Loader2, ShieldCheck, Sparkles } from "lucide-react";
+import { Boxes, Hash, Loader2, ShieldCheck, Sparkles, Printer } from "lucide-react";
 import { useStore, MANUFACTURERS, REGIONS, SAMPLE_DRUG_NAMES } from "@/lib/store";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ function genBatchId(drugName: string) {
 }
 
 export function Manufacturer() {
-  const { registerBatch } = useStore();
+  const { registerBatch, pushAlert } = useStore();
   const [drugName, setDrugName] = useState(SAMPLE_DRUG_NAMES[0]);
   const [manufacturer, setManufacturer] = useState(MANUFACTURERS[0]);
   const [region, setRegion] = useState(REGIONS[0]);
@@ -80,6 +80,14 @@ export function Manufacturer() {
         description: `Block #0 · 0x${blockchainHash.slice(0, 8)}…`,
         icon: <ShieldCheck className="h-4 w-4 text-primary" />,
       });
+      
+      // Simulate SMS/Email notification to the supply chain network
+      pushAlert({
+        level: "warning",
+        title: "New Dispatch Ready",
+        message: `Batch ${newBatchId} (${drugName}) has been packed by ${manufacturer}. Ready for logistics pickup. Access PIN: ${dispatchPin}`,
+      });
+
       setBatchId(genBatchId(drugName));
     } catch (err: any) {
       toast.error("Registration Failed", { description: err.message });
@@ -298,12 +306,13 @@ export function Manufacturer() {
                     {lastBatchId}
                   </div>
                   <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full mt-3 text-xs"
+                    variant="default" 
+                    size="default" 
+                    className="w-full mt-3 font-bold bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={() => window.print()}
                   >
-                    Print Label
+                    <Printer className="w-4 h-4 mr-2" />
+                    Print QR Code
                   </Button>
                 </div>
               </div>
