@@ -25,8 +25,8 @@ const NAV = [
   { path: "/manufacturer", label: "Add Batch", icon: Boxes, roles: ["MANUFACTURER"] },
   { path: "/track", label: "Track", icon: GitBranch, roles: ["MANUFACTURER", "SUPPLIER"] },
   { path: "/verify", label: "Verify", icon: ShieldCheck, roles: ["MANUFACTURER", "SUPPLIER", "LOCAL_SHOP"] },
-  { path: "/insights", label: "AI Insights", icon: TrendingUp, roles: ["MANUFACTURER", "SUPPLIER", "LOCAL_SHOP"] },
-  { path: "/routing", label: "Smart Routing", icon: RouteIcon, roles: ["MANUFACTURER", "SUPPLIER", "LOCAL_SHOP"] },
+  { path: "/insights", label: "AI Insights", icon: TrendingUp, roles: ["MANUFACTURER"] },
+  { path: "/routing", label: "Smart Routing", icon: RouteIcon, roles: ["MANUFACTURER", "SUPPLIER"] },
 ];
 
 function ThemeToggle() {
