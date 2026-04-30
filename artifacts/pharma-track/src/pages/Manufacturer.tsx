@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Boxes, Hash, Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import { useStore, MANUFACTURERS, REGIONS, SAMPLE_DRUG_NAMES } from "@/lib/store";
+import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +27,7 @@ export function Manufacturer() {
   const [drugName, setDrugName] = useState(SAMPLE_DRUG_NAMES[0]);
   const [manufacturer, setManufacturer] = useState(MANUFACTURERS[0]);
   const [region, setRegion] = useState(REGIONS[0]);
-  const [quantity, setQuantity] = useState("10000");
+  const [dosage, setDosage] = useState("500mg");
   const [batchId, setBatchId] = useState(() => genBatchId(SAMPLE_DRUG_NAMES[0]));
   const [manufactureDate, setManufactureDate] = useState(() =>
     new Date().toISOString().slice(0, 10)
@@ -37,31 +38,51 @@ export function Manufacturer() {
 
   const [submitting, setSubmitting] = useState(false);
   const [lastBlockHash, setLastBlockHash] = useState<string | null>(null);
+  const [lastBatchId, setLastBatchId] = useState<string | null>(null);
+  const [lastDispatchPin, setLastDispatchPin] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
     setLastBlockHash(null);
+    setLastBatchId(null);
+    setLastDispatchPin(null);
     try {
       // Simulate ledger commit latency for visual drama
       await new Promise((r) => setTimeout(r, 700));
-      const chain = await registerBatch({
-        id: batchId,
-        drugName,
-        manufacturer,
-        region,
-        quantity: Number(quantity) || 0,
-        manufactureDate,
+      
+      const payload = {
+        medicineName: drugName,
+        dosage,
         expiryDate,
+        destination: region,
+      };
+
+      const response = await fetch("http://localhost:3001/api/shipments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
-      const hash = chain[chain.length - 1].hash;
-      setLastBlockHash(hash);
+
+      if (!response.ok) {
+        throw new Error("Failed to register batch on blockchain");
+      }
+
+      const data = await response.json();
+      const { batchId: newBatchId, dispatchPin, blockchainHash } = data.shipment;
+
+      setLastBlockHash(blockchainHash);
+      setLastBatchId(newBatchId);
+      setLastDispatchPin(dispatchPin);
+      
       toast.success("Block committed to ledger", {
-        description: `Block #0 · 0x${hash.slice(0, 8)}…`,
+        description: `Block #0 · 0x${blockchainHash.slice(0, 8)}…`,
         icon: <ShieldCheck className="h-4 w-4 text-primary" />,
       });
       setBatchId(genBatchId(drugName));
+    } catch (err: any) {
+      toast.error("Registration Failed", { description: err.message });
     } finally {
       setSubmitting(false);
     }
@@ -154,13 +175,13 @@ export function Manufacturer() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="quantity">Quantity (units)</Label>
+              <Label htmlFor="dosage">Dosage</Label>
               <Input
-                id="quantity"
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                data-testid="input-quantity"
+                id="dosage"
+                type="text"
+                value={dosage}
+                onChange={(e) => setDosage(e.target.value)}
+                data-testid="input-dosage"
               />
             </div>
 
@@ -240,24 +261,59 @@ export function Manufacturer() {
             </ol>
           </div>
 
-          {lastBlockHash && (
+          {lastBlockHash && lastBatchId && lastDispatchPin && (
             <motion.div
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="rounded-xl border border-primary/40 bg-primary/5 p-6 glow-teal"
+              className="rounded-xl border border-primary/40 bg-primary/5 p-6 glow-teal space-y-4"
             >
               <div className="flex items-center gap-2 text-primary text-sm font-medium">
-                <ShieldCheck className="h-4 w-4" /> Block committed
+                <ShieldCheck className="h-4 w-4" /> Batch Successfully Registered
               </div>
-              <div className="mt-3 text-xs text-muted-foreground">
-                Genesis block hash for this batch:
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="text-xs text-muted-foreground">Genesis block hash:</div>
+                  <HashChip hash={lastBlockHash} className="text-primary border-primary/40 w-full justify-start" />
+                  
+                  <div className="pt-2">
+                    <div className="text-xs text-muted-foreground mb-1">Dispatch Access PIN:</div>
+                    <div className="text-2xl font-mono font-bold tracking-widest text-foreground bg-background border border-border rounded-lg px-4 py-2 inline-block">
+                      {lastDispatchPin}
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Send this PIN to the supplier securely. They will need it to verify this batch.
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center justify-center bg-white p-4 rounded-xl shadow-inner ml-auto w-max border border-slate-200">
+                  <QRCodeSVG 
+                    value={`${window.location.origin}/verify?batchId=${lastBatchId}`}
+                    size={100}
+                    level="Q"
+                    className="mb-2"
+                  />
+                  <div className="text-[9px] uppercase tracking-widest font-mono text-slate-500 font-semibold text-center w-full mt-2">
+                    {lastBatchId}
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full mt-3 text-xs"
+                    onClick={() => window.print()}
+                  >
+                    Print Label
+                  </Button>
+                </div>
               </div>
-              <div className="mt-2">
-                <HashChip hash={lastBlockHash} className="text-primary border-primary/40" />
+
+              <div className="border-t border-primary/20 pt-3 mt-4 text-xs text-muted-foreground flex items-center justify-between">
+                <span>Print and attach this QR Code to the physical dispatch box.</span>
+                <span className="text-amber-500/80 font-mono text-[10px] bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
+                  Simulated SMS Notification: PIN sent to destination node.
+                </span>
               </div>
-              <p className="mt-3 text-xs text-muted-foreground">
-                Open the <span className="text-foreground">Track</span> tab to advance this batch through distributor and pharmacy checkpoints.
-              </p>
             </motion.div>
           )}
         </div>

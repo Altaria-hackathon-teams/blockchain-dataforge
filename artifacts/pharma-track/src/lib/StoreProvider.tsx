@@ -42,7 +42,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
     return {
       state,
-      registerBatch: async (input: Omit<Batch, "status">) => {
+      registerBatch: async (input: Omit<Batch, "status" | "dispatchPin">) => {
         const ts = new Date().toISOString();
         const chain = await addBlock([], {
           timestamp: ts,
@@ -51,7 +51,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           location: `Manufacturing Facility • ${input.region}`,
           handler: input.manufacturer,
         });
-        const newBatch: Batch = { ...input, status: "MANUFACTURED" };
+        const pin = Math.floor(100000 + Math.random() * 900000).toString();
+        const newBatch: Batch = { ...input, status: "MANUFACTURED", dispatchPin: pin };
         setState((s) => {
           if (!s) return s;
           return {
@@ -70,7 +71,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ],
           };
         });
-        return chain;
+        return { chain, pin };
       },
       advanceBatch: async (
         batchId: string,
@@ -120,6 +121,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ],
           };
         });
+      },
+      login: (user) => {
+        setState((s) => s ? { ...s, currentUser: user } : null);
+      },
+      logout: () => {
+        setState((s) => s ? { ...s, currentUser: null } : null);
       },
     };
   }, [state]);

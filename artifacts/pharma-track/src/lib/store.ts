@@ -11,6 +11,7 @@ export interface Batch {
   expiryDate: string;
   status: "MANUFACTURED" | "IN_TRANSIT" | "DELIVERED" | "FLAGGED";
   region: string;
+  dispatchPin?: string; // Secure 6-digit PIN for access
 }
 
 export interface Alert {
@@ -21,11 +22,20 @@ export interface Alert {
   timestamp: string;
 }
 
+export type UserRole = "MANUFACTURER" | "SUPPLIER" | "LOCAL_SHOP";
+
+export interface User {
+  name: string;
+  role: UserRole;
+  email: string;
+}
+
 export interface AppState {
   batches: Batch[];
   chains: Record<string, Block[]>;
   alerts: Alert[];
   knownCounterfeitId: string;
+  currentUser: User | null;
 }
 
 const STORAGE_KEY = "pharma-track-state-v1";
@@ -82,8 +92,10 @@ async function buildSeedChains(): Promise<{ batches: Batch[]; chains: Record<str
 
     const status: Batch["status"] =
       journey === FULL_JOURNEY ? "DELIVERED" : "IN_TRANSIT";
+      
+    const dispatchPin = Math.floor(100000 + Math.random() * 900000).toString();
 
-    batches.push({ ...seed, status });
+    batches.push({ ...seed, status, dispatchPin });
     chains[seed.id] = chain;
   }
 
@@ -119,6 +131,7 @@ export async function buildInitialState(): Promise<AppState> {
         timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
       },
     ],
+    currentUser: null,
   };
 }
 
@@ -152,10 +165,12 @@ export function clearPersistedState() {
 
 export const StoreContext = createContext<{
   state: AppState;
-  registerBatch: (input: Omit<Batch, "status">) => Promise<Block[]>;
+  registerBatch: (input: Omit<Batch, "status" | "dispatchPin">) => Promise<{ chain: Block[], pin: string }>;
   advanceBatch: (batchId: string, stop: { event: Block["event"]; location: string; handler: string }) => Promise<Block[] | null>;
   resetDemo: () => Promise<void>;
   pushAlert: (a: Omit<Alert, "id" | "timestamp">) => void;
+  login: (user: User) => void;
+  logout: () => void;
 } | null>(null);
 
 export function useStore() {

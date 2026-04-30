@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { StoreProvider } from "@/lib/StoreProvider";
+import { ThemeProvider } from "@/lib/ThemeContext";
 import { AppShell } from "@/components/AppShell";
 import { Overview } from "@/pages/Overview";
 import { Manufacturer } from "@/pages/Manufacturer";
@@ -10,48 +11,68 @@ import { Track } from "@/pages/Track";
 import { Verify } from "@/pages/Verify";
 import { Insights } from "@/pages/Insights";
 import { Routing } from "@/pages/Routing";
+import { Landing } from "@/pages/Landing";
+import { Auth } from "@/pages/Auth";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
 
-function AppRouter() {
+function DashboardRouter() {
+  return (
+    <AppShell>
+      <Switch>
+        <Route path="/dashboard" component={Overview} />
+        <Route path="/manufacturer" component={Manufacturer} />
+        <Route path="/track" component={Track} />
+        <Route path="/verify" component={Verify} />
+        <Route path="/insights" component={Insights} />
+        <Route path="/routing" component={Routing} />
+        <Route component={NotFound} />
+      </Switch>
+    </AppShell>
+  );
+}
+
+function MainRouter() {
   return (
     <Switch>
-      <Route path="/" component={Overview} />
-      <Route path="/manufacturer" component={Manufacturer} />
-      <Route path="/track" component={Track} />
-      <Route path="/verify" component={Verify} />
-      <Route path="/insights" component={Insights} />
-      <Route path="/routing" component={Routing} />
-      <Route component={NotFound} />
+      <Route path="/" component={Landing} />
+      <Route path="/login">
+        <Auth mode="login" />
+      </Route>
+      <Route path="/register">
+        <Auth mode="register" />
+      </Route>
+      {/* Any other route falls through to DashboardRouter, which has its own NotFound */}
+      <Route component={DashboardRouter} />
     </Switch>
   );
 }
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <StoreProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <AppShell>
-              <AppRouter />
-            </AppShell>
-          </WouterRouter>
-          <Toaster
-            theme="dark"
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: "hsl(222 45% 9%)",
-                border: "1px solid hsl(217 33% 17%)",
-                color: "hsl(210 40% 96%)",
-              },
-            }}
-          />
-        </StoreProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <StoreProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <MainRouter />
+            </WouterRouter>
+            <Toaster
+              theme="system"
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
+                  color: "hsl(var(--foreground))",
+                },
+              }}
+            />
+          </StoreProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
