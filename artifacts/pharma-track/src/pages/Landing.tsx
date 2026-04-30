@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Link } from "wouter";
 import {
   ShieldCheck,
@@ -203,12 +203,12 @@ const STATS = [
   { label: "Uptime", value: "99.99%", icon: Zap },
 ];
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.12 } },
 };
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
 };
@@ -219,31 +219,23 @@ export function Landing() {
   const isDark = theme === "dark";
 
   return (
-    <div className={`min-h-screen font-sans overflow-x-hidden transition-colors duration-300 ${
-      isDark ? "bg-slate-950 text-slate-100" : "bg-white text-slate-900"
-    }`}>
+    <div className={`min-h-screen font-sans overflow-x-hidden transition-colors duration-300 ${isDark ? "bg-slate-950 text-slate-100" : "bg-white text-slate-900"}`}>
       {/* ── NAV ─────────────────────────────────────────────────────────────── */}
-      <header className={`fixed top-0 inset-x-0 z-50 border-b backdrop-blur-md transition-colors duration-300 ${
-        isDark
-          ? "bg-slate-900/80 border-slate-800/60"
-          : "bg-white/80 border-slate-200/60"
-      }`}>
+      <header className={`fixed top-0 inset-x-0 z-50 border-b backdrop-blur-md transition-colors duration-300 ${isDark ? "bg-slate-900/80 border-slate-800/60" : "bg-white/80 border-slate-200/60"}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
               <Pill className="h-4 w-4 text-white" />
             </div>
-            <span className={`font-bold text-lg tracking-tight ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}>PharmaTrace</span>
+            <span className={`font-bold text-lg tracking-tight ${isDark ? "text-white" : "text-slate-900"
+              }`}>PharmaTrace</span>
           </div>
 
-          <nav className={`hidden md:flex items-center gap-8 text-sm font-medium ${
-            isDark ? "text-slate-400" : "text-slate-600"
-          }`}>
-            <a href="#features" className={`hover:${ isDark ? "text-white" : "text-slate-900" } transition-colors`}>Features</a>
-            <a href="#stats" className={`hover:${ isDark ? "text-white" : "text-slate-900" } transition-colors`}>Impact</a>
-            <a href="#how" className={`hover:${ isDark ? "text-white" : "text-slate-900" } transition-colors`}>How it works</a>
+          <nav className={`hidden md:flex items-center gap-8 text-sm font-medium ${isDark ? "text-slate-400" : "text-slate-600"
+            }`}>
+            <a href="#features" className={`hover:${isDark ? "text-white" : "text-slate-900"} transition-colors`}>Features</a>
+            <a href="#stats" className={`hover:${isDark ? "text-white" : "text-slate-900"} transition-colors`}>Impact</a>
+            <a href="#how" className={`hover:${isDark ? "text-white" : "text-slate-900"} transition-colors`}>How it works</a>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -251,34 +243,30 @@ export function Landing() {
             <button
               onClick={toggle}
               aria-label="Toggle theme"
-              className={`relative flex items-center w-12 h-6 rounded-full border transition-colors duration-300 ${
-                isDark ? "bg-slate-700 border-slate-600" : "bg-blue-100 border-blue-200"
-              }`}
-            >
-              <Sun className={`absolute left-1 h-3.5 w-3.5 transition-all ${ isDark ? "opacity-30 text-slate-400" : "opacity-100 text-amber-500" }`} />
-              <Moon className={`absolute right-1 h-3.5 w-3.5 transition-all ${ isDark ? "opacity-100 text-blue-300" : "opacity-30 text-slate-400" }`} />
-              <div
-                className={`absolute h-[18px] w-[18px] rounded-full shadow-md transition-all duration-300 ${
-                  isDark ? "bg-blue-400 left-6" : "bg-white left-0.5"
+              className={`relative flex items-center w-12 h-6 rounded-full border transition-colors duration-300 ${isDark ? "bg-slate-700 border-slate-600" : "bg-blue-100 border-blue-200"
                 }`}
+            >
+              <Sun className={`absolute left-1 h-3.5 w-3.5 transition-all ${isDark ? "opacity-30 text-slate-400" : "opacity-100 text-amber-500"}`} />
+              <Moon className={`absolute right-1 h-3.5 w-3.5 transition-all ${isDark ? "opacity-100 text-blue-300" : "opacity-30 text-slate-400"}`} />
+              <div
+                className={`absolute h-[18px] w-[18px] rounded-full shadow-md transition-all duration-300 ${isDark ? "bg-blue-400 left-6" : "bg-white left-0.5"
+                  }`}
               />
             </button>
 
             <Link href="/login">
-              <button className={`text-sm font-medium px-4 py-2 rounded-lg transition-all ${
-                isDark
+              <button className={`text-sm font-medium px-4 py-2 rounded-lg transition-all ${isDark
                   ? "text-slate-300 hover:text-white hover:bg-slate-800"
                   : "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
-              }`}>
+                }`}>
                 Log in
               </button>
             </Link>
             <Link href="/register">
-              <button className={`text-sm font-semibold px-4 py-2 rounded-full transition-all shadow-sm ${
-                isDark
+              <button className={`text-sm font-semibold px-4 py-2 rounded-full transition-all shadow-sm ${isDark
                   ? "bg-blue-600 text-white hover:bg-blue-500"
                   : "bg-slate-900 text-white hover:bg-slate-700"
-              }`}>
+                }`}>
                 Get started
               </button>
             </Link>
@@ -287,9 +275,8 @@ export function Landing() {
       </header>
 
       {/* ── HERO ────────────────────────────────────────────────────────────── */}
-      <section className={`relative min-h-screen flex flex-col items-center justify-center pt-16 overflow-hidden ${
-        isDark ? "bg-slate-950" : "bg-white"
-      }`}>
+      <section className={`relative min-h-screen flex flex-col items-center justify-center pt-16 overflow-hidden ${isDark ? "bg-slate-950" : "bg-white"
+        }`}>
         <ParticleBackground />
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
@@ -307,9 +294,8 @@ export function Landing() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className={`text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-4 ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
+            className={`text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-4 ${isDark ? "text-white" : "text-slate-900"
+              }`}
           >
             The future of<br />
             <span className="text-blue-600">drug provenance</span>
@@ -323,9 +309,8 @@ export function Landing() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 1.1 }}
-            className={`text-lg max-w-2xl mx-auto mb-10 leading-relaxed ${
-              isDark ? "text-slate-400" : "text-slate-500"
-            }`}
+            className={`text-lg max-w-2xl mx-auto mb-10 leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"
+              }`}
           >
             PharmaTrace brings blockchain-grade authenticity, AI-powered predictions, and real-time
             supply chain visibility to every pill — from the manufacturer's floor to the patient's hand.
@@ -338,21 +323,19 @@ export function Landing() {
             className="flex flex-wrap items-center justify-center gap-4"
           >
             <Link href="/register">
-              <button className={`inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm transition-all shadow-lg hover:scale-[1.03] ${
-                isDark
+              <button className={`inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm transition-all shadow-lg hover:scale-[1.03] ${isDark
                   ? "bg-blue-600 text-white hover:bg-blue-500 shadow-blue-900/30"
                   : "bg-slate-900 text-white hover:bg-slate-700 shadow-slate-900/20"
-              }`}>
+                }`}>
                 Start for free
                 <ArrowRight className="h-4 w-4" />
               </button>
             </Link>
             <Link href="/dashboard">
-              <button className={`inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm transition-all hover:scale-[1.03] border ${
-                isDark
+              <button className={`inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm transition-all hover:scale-[1.03] border ${isDark
                   ? "text-slate-300 border-slate-600 hover:bg-slate-800 hover:text-white"
                   : "text-slate-700 border-slate-300 hover:border-slate-400 hover:bg-slate-50"
-              }`}>
+                }`}>
                 Explore the dashboard
               </button>
             </Link>
@@ -360,9 +343,8 @@ export function Landing() {
         </div>
 
         {/* Fade bottom */}
-        <div className={`absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t ${
-          isDark ? "from-slate-950" : "from-white"
-        } to-transparent z-10`} />
+        <div className={`absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t ${isDark ? "from-slate-950" : "from-white"
+          } to-transparent z-10`} />
       </section>
 
       {/* ── STATS ────────────────────────────────────────────────────────────── */}
@@ -389,7 +371,7 @@ export function Landing() {
       </section>
 
       {/* ── FEATURES ─────────────────────────────────────────────────────────── */}
-      <section id="features" className={`py-24 ${ isDark ? "bg-slate-900" : "bg-white" }`}>
+      <section id="features" className={`py-24 ${isDark ? "bg-slate-900" : "bg-white"}`}>
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -399,7 +381,7 @@ export function Landing() {
             className="text-center mb-16"
           >
             <div className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-3">Platform Capabilities</div>
-            <h2 className={`text-4xl md:text-5xl font-extrabold tracking-tight ${ isDark ? "text-white" : "text-slate-900" }`}>
+            <h2 className={`text-4xl md:text-5xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
               Everything in one console
             </h2>
             <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">
@@ -419,13 +401,13 @@ export function Landing() {
                 key={title}
                 variants={fadeUp}
                 whileHover={{ y: -4, boxShadow: "0 20px 40px -8px rgba(0,0,0,0.10)" }}
-                className={`rounded-2xl border ${ isDark ? "border-slate-700/50 bg-slate-800/60" : `${border} ${bg}` } p-6 transition-all duration-300 cursor-default`}
+                className={`rounded-2xl border ${isDark ? "border-slate-700/50 bg-slate-800/60" : `${border} ${bg}`} p-6 transition-all duration-300 cursor-default`}
               >
                 <div className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-sm mb-5 ${color}`}>
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className={`font-bold text-lg mb-2 ${ isDark ? "text-white" : "text-slate-900" }`}>{title}</h3>
-                <p className={`text-sm leading-relaxed ${ isDark ? "text-slate-400" : "text-slate-500" }`}>{desc}</p>
+                <h3 className={`font-bold text-lg mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h3>
+                <p className={`text-sm leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>{desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -433,7 +415,7 @@ export function Landing() {
       </section>
 
       {/* ── HOW IT WORKS ─────────────────────────────────────────────────────── */}
-      <section id="how" className={`py-24 ${ isDark ? "bg-slate-950" : "bg-slate-50" }`}>
+      <section id="how" className={`py-24 ${isDark ? "bg-slate-950" : "bg-slate-50"}`}>
         <div className="max-w-5xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -443,7 +425,7 @@ export function Landing() {
             className="text-center mb-16"
           >
             <div className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-3">Workflow</div>
-            <h2 className={`text-4xl md:text-5xl font-extrabold tracking-tight ${ isDark ? "text-white" : "text-slate-900" }`}>How PharmaTrace works</h2>
+            <h2 className={`text-4xl md:text-5xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>How PharmaTrace works</h2>
           </motion.div>
 
           <div className="relative">
@@ -465,8 +447,8 @@ export function Landing() {
               >
                 <div className={`flex-1 ${i % 2 === 0 ? "md:text-right md:pr-12" : "md:text-left md:pl-12"}`}>
                   <div className="text-xs font-bold uppercase tracking-widest text-blue-500 mb-1">{step}</div>
-                  <h3 className={`text-xl font-bold mb-2 ${ isDark ? "text-white" : "text-slate-900" }`}>{title}</h3>
-                  <p className={`text-sm leading-relaxed ${ isDark ? "text-slate-400" : "text-slate-500" }`}>{desc}</p>
+                  <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h3>
+                  <p className={`text-sm leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>{desc}</p>
                 </div>
                 <div className="relative z-10 h-12 w-12 shrink-0 rounded-full bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-lg shadow-blue-600/30">
                   {step}

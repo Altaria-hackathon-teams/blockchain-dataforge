@@ -8,6 +8,7 @@ import {
   type AppState,
   type Alert,
   type Batch,
+  type User,
 } from "./store";
 import { addBlock, type Block } from "./blockchain";
 import { db } from "./firebase";
@@ -135,7 +136,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           timestamp: new Date().toISOString(),
         });
       },
-      login: (user) => {
+      login: (user: User) => {
         setState((s) => s ? { ...s, currentUser: user } : null);
       },
       logout: () => {
