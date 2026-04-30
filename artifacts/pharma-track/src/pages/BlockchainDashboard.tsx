@@ -54,7 +54,8 @@ export function BlockchainDashboard() {
   const handleMint = async () => {
     try {
       // 1. Get AI Prediction
-      const response = await fetch("http://localhost:8000/api/v1/predict", {
+      const backendUrl = import.meta.env.VITE_AI_BACKEND_URL || "http://localhost:8000";
+      const response = await fetch(`${backendUrl}/api/v1/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
