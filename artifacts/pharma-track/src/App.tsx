@@ -38,10 +38,10 @@ function MainRouter() {
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/login">
-        <Auth mode="login" />
+        <Auth />
       </Route>
       <Route path="/register">
-        <Auth mode="register" />
+        <Auth />
       </Route>
       {/* Any other route falls through to DashboardRouter, which has its own NotFound */}
       <Route component={DashboardRouter} />
