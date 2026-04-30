@@ -206,7 +206,42 @@ export function Auth() {
                 );
               })}
             </div>
-            <p className="mt-12 text-slate-500 text-sm">Already have an account? <button onClick={() => setState("login")} className="text-blue-400 font-bold hover:underline">Sign In</button></p>
+
+            {/* ── QUICK ACCESS demo strip ───────────────────────── */}
+            <div className="mt-10 p-5 rounded-2xl border border-slate-700/60 bg-slate-900/30 backdrop-blur">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-slate-500 mb-4 font-semibold flex items-center justify-center gap-2">
+                <Activity className="w-3 h-3" /> ⚡ Quick Access — Hackathon Demo
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Manufacturer", email: "mfg@altaria.com", role: "MANUFACTURER" as UserRole, color: "from-blue-600 to-cyan-600", icon: Factory },
+                  { label: "Supplier", email: "supplier@altaria.com", role: "SUPPLIER" as UserRole, color: "from-indigo-600 to-purple-600", icon: Truck },
+                  { label: "Local Shop", email: "local@altaria.com", role: "LOCAL_SHOP" as UserRole, color: "from-emerald-600 to-teal-600", icon: Store },
+                ].map((q) => (
+                  <motion.button
+                    key={q.role}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => {
+                      setSelectedRole(q.role);
+                      setForm(f => ({ ...f, email: q.email, password: "admin123" }));
+                      login({ name: q.label + " Demo", email: q.email, role: q.role });
+                      toast.success(`Quick Access: ${q.label}`, { description: "Logged in as demo account." });
+                      if (q.role === "MANUFACTURER") navigate("/dashboard");
+                      else if (q.role === "SUPPLIER") navigate("/dashboard");
+                      else navigate("/dashboard");
+                    }}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${q.color} text-white font-semibold text-sm shadow-lg transition-all`}
+                  >
+                    <q.icon className="w-5 h-5" />
+                    {q.label}
+                    <span className="text-[10px] opacity-70 font-normal">Demo login</span>
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+
+            <p className="mt-8 text-slate-500 text-sm">Already have an account? <button onClick={() => setState("login")} className="text-blue-400 font-bold hover:underline">Sign In</button></p>
           </motion.div>
         )}
 
