@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Pill, Mail, Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck,
   Briefcase, AlertCircle, Phone, FileCheck, CheckCircle2, Factory,
-  Truck, Store, Building2, Smartphone, Shield
+  Truck, Store, Building2, Smartphone, Shield, Activity
 } from "lucide-react";
 import { useStore, UserRole } from "@/lib/store";
 import { toast } from "sonner";
