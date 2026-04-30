@@ -75,6 +75,7 @@
     "zod": "*"
   },
   "dependencies": {
+    "firebase": "^12.12.1",
     "jsqr": "^1.4.0",
     "qrcode.react": "^4.2.0"
   }
