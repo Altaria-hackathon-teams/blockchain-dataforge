@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Boxes, Hash, Loader2, ShieldCheck, Sparkles, Printer } from "lucide-react";
 import { useStore, MANUFACTURERS, REGIONS, SAMPLE_DRUG_NAMES } from "@/lib/store";
+import { db } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +37,7 @@ export function Manufacturer() {
   const [expiryDate, setExpiryDate] = useState(() =>
     new Date(Date.now() + 730 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
   );
+  const [supplierEmail, setSupplierEmail] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
   const [lastBlockHash, setLastBlockHash] = useState<string | null>(null);
@@ -87,6 +90,41 @@ export function Manufacturer() {
         title: "New Dispatch Ready",
         message: `Batch ${newBatchId} (${drugName}) has been packed by ${manufacturer}. Ready for logistics pickup. Access PIN: ${dispatchPin}`,
       });
+
+      // Actual Email Integration via Firebase
+      if (supplierEmail) {
+        try {
+          await addDoc(collection(db, "mail"), {
+            to: supplierEmail,
+            message: {
+              subject: `PharmaTrace: New Batch Ready for Pickup (${newBatchId})`,
+              html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                  <h2 style="color: #2563eb;">New Batch Ready for Pickup</h2>
+                  <p>Hello,</p>
+                  <p>A new batch of <strong>${drugName}</strong> has been securely packed by <strong>${manufacturer}</strong> and is ready for your logistics pickup.</p>
+                  <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <ul style="list-style: none; padding: 0; margin: 0; line-height: 1.8;">
+                      <li><strong>📦 Batch ID:</strong> <span style="font-family: monospace;">${newBatchId}</span></li>
+                      <li><strong>📍 Origin:</strong> ${region}</li>
+                      <li><strong>🔑 Access PIN:</strong> <span style="font-size: 1.2em; font-weight: bold; font-family: monospace; color: #2563eb; background: #dbeafe; padding: 2px 6px; border-radius: 4px;">${dispatchPin}</span></li>
+                    </ul>
+                  </div>
+                  <p>Please enter this secure PIN in the PharmaTrace portal to verify and take ownership of the batch on the blockchain ledger.</p>
+                  <br/>
+                  <p style="font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                    PharmaTrace Provenance Console &bull; Tamper-proof. Predictive. Optimized.
+                  </p>
+                </div>
+              `
+            }
+          });
+          toast.success("Email Sent to Provider", { description: `Notification successfully queued for ${supplierEmail}` });
+        } catch (e: any) {
+          console.error("Error queueing email:", e);
+          toast.error("Email failed", { description: "Failed to queue email in Firebase." });
+        }
+      }
 
       setBatchId(genBatchId(drugName));
     } catch (err: any) {
@@ -204,7 +242,7 @@ export function Manufacturer() {
               />
             </div>
 
-            <div className="space-y-1.5 sm:col-span-2">
+            <div className="space-y-1.5 sm:col-span-1">
               <Label htmlFor="expiryDate">Expiry date</Label>
               <Input
                 id="expiryDate"
@@ -212,6 +250,18 @@ export function Manufacturer() {
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
                 data-testid="input-exp-date"
+              />
+            </div>
+
+            <div className="space-y-1.5 sm:col-span-1">
+              <Label htmlFor="supplierEmail">Supplier / Dealer Email</Label>
+              <Input
+                id="supplierEmail"
+                type="email"
+                placeholder="supplier@example.com"
+                value={supplierEmail}
+                onChange={(e) => setSupplierEmail(e.target.value)}
+                required
               />
             </div>
           </div>
