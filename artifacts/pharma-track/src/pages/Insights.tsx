@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart, Bar, AreaChart, Area, ResponsiveContainer,
   Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import {
-  AlertTriangle, Brain, MapPin, Package, Send,
-  TrendingUp, Zap, Shield, ThermometerSun, Wind, Droplets,
+  AlertTriangle, Bell, Brain, CheckCircle, MapPin, Package,
+  Send, TrendingUp, Zap, Shield, ThermometerSun, Wind, Droplets, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store";
@@ -138,9 +138,10 @@ const COLOR_MAP: Record<string, { ring: string; bar: string; glow: string; text:
 };
 
 export function Insights() {
-  const { state } = useStore();
+  const { state, pushAlert } = useStore();
   const [selected, setSelected] = useState(EPIDEMIC_DATA[0]);
   const [dispatching, setDispatching] = useState<string | null>(null);
+  const [sentAlerts, setSentAlerts] = useState<Record<string, boolean>>({});
 
   const user = state.currentUser;
   // Guard — Manufacturer only
@@ -167,13 +168,21 @@ export function Insights() {
   const highCount     = EPIDEMIC_DATA.filter(r => r.riskScore >= 60 && r.riskScore < 80).length;
   const totalUnits    = EPIDEMIC_DATA.reduce((s, r) => s + r.recommended.reduce((a, d) => a + d.qty, 0), 0);
 
-  function handleDispatch(region: typeof EPIDEMIC_DATA[0]) {
+  function handleSendAlert(region: typeof EPIDEMIC_DATA[0]) {
+    if (sentAlerts[region.region]) return;
     setDispatching(region.region);
     setTimeout(() => {
       setDispatching(null);
-      toast.success(`Dispatch Order Queued — ${region.region}`, {
-        description: `${region.recommended.length} medicines · ${region.recommended.reduce((a, d) => a + d.qty, 0).toLocaleString()} units scheduled.`,
-        icon: <Send className="w-4 h-4 text-primary" />,
+      // Push warning alert visible to Suppliers and Local Shops
+      pushAlert({
+        level: "warning",
+        title: `⚠️ Urgent: Medical Supply Needed — ${region.region}`,
+        message: `AI Forecast Alert: ${region.emergencyType} detected in ${region.city} (Risk Score: ${region.riskScore}/100, Trend: ${region.trend}). Medicines required: ${region.recommended.map(r => `${r.drug} (${r.qty.toLocaleString()} units)`).join(" · ")}. Please confirm acceptance to proceed with delivery placement.`,
+      });
+      setSentAlerts(prev => ({ ...prev, [region.region]: true }));
+      toast.success(`Alert Sent — ${region.region}`, {
+        description: "Supplier & Local Shop notified. Awaiting their acceptance to place delivery.",
+        icon: <Bell className="w-4 h-4 text-amber-400" />,
       });
     }, 1500);
   }
@@ -314,15 +323,38 @@ export function Insights() {
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                 <Brain className="w-3.5 h-3.5 text-primary" /> AI Dispatch Recommendations
               </div>
-              <Button size="sm" onClick={() => handleDispatch(selected)} disabled={dispatching === selected.region}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
-                {dispatching === selected.region ? (
-                  <><span className="animate-spin inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full" /> Queuing…</>
-                ) : (
-                  <><Send className="w-3.5 h-3.5" /> Dispatch All</>
-                )}
-              </Button>
+              {sentAlerts[selected.region] ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+                  <CheckCircle className="w-3.5 h-3.5" /> Alert Sent — Awaiting Acceptance
+                </div>
+              ) : (
+                <Button size="sm" onClick={() => handleSendAlert(selected)} disabled={dispatching === selected.region}
+                  className="bg-amber-500 hover:bg-amber-400 text-black font-bold gap-2">
+                  {dispatching === selected.region ? (
+                    <><span className="animate-spin inline-block w-3 h-3 border-2 border-black border-t-transparent rounded-full" /> Sending…</>
+                  ) : (
+                    <><Bell className="w-3.5 h-3.5" /> Alert Supplier &amp; Local Shop</>
+                  )}
+                </Button>
+              )}
             </div>
+
+            {sentAlerts[selected.region] && (
+              <AnimatePresence>
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 rounded-lg border border-amber-400/40 bg-amber-400/5 px-4 py-3 text-sm text-amber-300 flex items-start gap-3"
+                >
+                  <Bell className="w-4 h-4 mt-0.5 shrink-0 text-amber-400" />
+                  <div>
+                    <div className="font-semibold">Notification Sent to Supply Chain Partners</div>
+                    <div className="text-xs text-amber-400/70 mt-0.5">Supplier and Local Shop have been alerted. Delivery will be automatically placed once they confirm acceptance from their dashboard.</div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            )}
+
             <div className="space-y-2">
               {selected.recommended.map((rec) => (
                 <div key={rec.drug} className="flex items-center justify-between rounded-lg border border-border bg-background/40 px-4 py-3">

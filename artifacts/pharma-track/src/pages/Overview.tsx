@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -10,6 +10,8 @@ import {
   ArrowUpRight,
   ShieldAlert,
   Truck,
+  CheckCircle,
+  PackageCheck,
   type LucideIcon,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
@@ -72,10 +74,22 @@ function StatCard({
 }
 
 export function Overview() {
-  const { state } = useStore();
+  const { state, pushAlert } = useStore();
+  const [acceptedAlerts, setAcceptedAlerts] = useState<Record<string, boolean>>({});
   const verifiedCount = state.batches.filter((b) => b.status === "DELIVERED").length;
   const inTransit = state.batches.filter((b) => b.status === "IN_TRANSIT").length;
   const criticalAlerts = state.alerts.filter((a) => a.level === "critical").length;
+  const user = state.currentUser;
+
+  function handleAcceptAlert(alertId: string, alertTitle: string) {
+    setAcceptedAlerts(prev => ({ ...prev, [alertId]: true }));
+    const region = alertTitle.replace("⚠️ Urgent: Medical Supply Needed — ", "");
+    pushAlert({
+      level: "info",
+      title: "Delivery Confirmed & Placed",
+      message: `Order accepted for ${region}. Delivery has been placed and is now being processed by the manufacturer.`,
+    });
+  }
 
   const heroChart = useMemo(() => {
     const hist = generateHistoricalDemand("Paracetamol 500mg");
@@ -226,6 +240,9 @@ export function Overview() {
                   : a.level === "warning"
                     ? "text-amber-400"
                     : "text-primary";
+              const isDispatchAlert = a.level === "warning" && a.title.includes("Medical Supply Needed");
+              const canAccept = isDispatchAlert && (user?.role === "SUPPLIER" || user?.role === "LOCAL_SHOP");
+              const accepted = acceptedAlerts[a.id];
               return (
                 <div key={a.id} className={`rounded-md border p-3 ${tone}`}>
                   <div className="flex items-start gap-2">
@@ -233,6 +250,22 @@ export function Overview() {
                     <div className="flex-1">
                       <div className="text-sm font-medium leading-snug">{a.title}</div>
                       <div className="text-xs text-muted-foreground mt-1">{a.message}</div>
+                      {canAccept && (
+                        <div className="mt-2">
+                          {accepted ? (
+                            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
+                              <CheckCircle className="w-3.5 h-3.5" /> Delivery Confirmed & Placed
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleAcceptAlert(a.id, a.title)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold bg-amber-500 hover:bg-amber-400 text-black transition-colors"
+                            >
+                              <PackageCheck className="w-3.5 h-3.5" /> Accept & Place Delivery
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
