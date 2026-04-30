@@ -119,10 +119,14 @@ export function Manufacturer() {
               `
             }
           });
-          toast.success("Email Sent to Provider", { description: `Notification successfully queued for ${supplierEmail}` });
+          toast.success("Email Queued", { description: `Notification queued for ${supplierEmail} in Firebase.` });
         } catch (e: any) {
-          console.error("Error queueing email:", e);
-          toast.error("Email failed", { description: "Failed to queue email in Firebase." });
+          console.error("Error queueing email in Firebase:", e);
+          toast.error("Firebase Email failed", { description: "Falling back to local email client." });
+          // Fallback for hackathon demo: open local email client
+          const subject = encodeURIComponent(`PharmaTrace: New Batch Ready for Pickup (${newBatchId})`);
+          const body = encodeURIComponent(`Hello,\n\nA new batch of ${drugName} has been securely packed by ${manufacturer} and is ready for your logistics pickup.\n\nBatch ID: ${newBatchId}\nOrigin: ${region}\nAccess PIN: ${dispatchPin}\n\nPlease enter this secure PIN in the PharmaTrace portal to verify and take ownership of the batch on the blockchain ledger.\n\nPharmaTrace Provenance Console`);
+          window.location.href = `mailto:${supplierEmail}?subject=${subject}&body=${body}`;
         }
       }
 

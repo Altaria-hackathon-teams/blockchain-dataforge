@@ -10,26 +10,60 @@ import {
   type Batch,
 } from "./store";
 import { addBlock, type Block } from "./blockchain";
+import { db } from "./firebase";
+import { 
+  collection, 
+  onSnapshot, 
+  doc, 
+  setDoc, 
+  addDoc, 
+  query, 
+  orderBy, 
+  limit,
+  writeBatch
+} from "firebase/firestore";
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    
+    // Initialize base state
     (async () => {
       const persisted = loadPersistedState();
       if (persisted) {
         if (!cancelled) setState(persisted);
-        return;
-      }
-      const fresh = await buildInitialState();
-      if (!cancelled) {
-        setState(fresh);
-        persistState(fresh);
+      } else {
+        const fresh = await buildInitialState();
+        if (!cancelled) setState(fresh);
       }
     })();
+
+    // Listen to Firebase Collections for real-time updates
+    const unsubBatches = onSnapshot(collection(db, "batches"), (snap) => {
+      const batches = snap.docs.map(d => d.data() as Batch);
+      setState(s => s ? { ...s, batches } : s);
+    });
+
+    const unsubAlerts = onSnapshot(query(collection(db, "alerts"), orderBy("timestamp", "desc"), limit(20)), (snap) => {
+      const alerts = snap.docs.map(d => ({ ...d.data(), id: d.id } as Alert));
+      setState(s => s ? { ...s, alerts } : s);
+    });
+
+    const unsubChains = onSnapshot(collection(db, "chains"), (snap) => {
+      const chains: Record<string, Block[]> = {};
+      snap.docs.forEach(d => {
+        chains[d.id] = d.data().blocks as Block[];
+      });
+      setState(s => s ? { ...s, chains } : s);
+    });
+
     return () => {
       cancelled = true;
+      unsubBatches();
+      unsubAlerts();
+      unsubChains();
     };
   }, []);
 
@@ -53,24 +87,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         });
         const pin = Math.floor(100000 + Math.random() * 900000).toString();
         const newBatch: Batch = { ...input, status: "MANUFACTURED", dispatchPin: pin };
-        setState((s) => {
-          if (!s) return s;
-          return {
-            ...s,
-            batches: [newBatch, ...s.batches],
-            chains: { ...s.chains, [input.id]: chain },
-            alerts: [
-              {
-                id: `alert-${Date.now()}`,
-                level: "info",
-                title: "New batch committed to ledger",
-                message: `${input.drugName} (${input.id}) registered by ${input.manufacturer}.`,
-                timestamp: ts,
-              },
-              ...s.alerts,
-            ],
-          };
+        
+        // Write to Firebase
+        await setDoc(doc(db, "batches", input.id), newBatch);
+        await setDoc(doc(db, "chains", input.id), { blocks: chain });
+        await addDoc(collection(db, "alerts"), {
+          level: "info",
+          title: "New batch committed to ledger",
+          message: `${input.drugName} (${input.id}) registered by ${input.manufacturer}.`,
+          timestamp: ts,
         });
+
         return { chain, pin };
       },
       advanceBatch: async (
@@ -89,16 +116,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         });
         const newStatus: Batch["status"] =
           stop.event === "RECEIVED_PHARMACY" ? "DELIVERED" : "IN_TRANSIT";
-        setState((s) => {
-          if (!s) return s;
-          return {
-            ...s,
-            chains: { ...s.chains, [batchId]: next },
-            batches: s.batches.map((b) =>
-              b.id === batchId ? { ...b, status: newStatus } : b
-            ),
-          };
-        });
+        
+        // Write to Firebase
+        await setDoc(doc(db, "chains", batchId), { blocks: next });
+        const batchRef = doc(db, "batches", batchId);
+        await setDoc(batchRef, { status: newStatus }, { merge: true });
+
         return next;
       },
       resetDemo: async () => {
@@ -106,20 +129,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const fresh = await buildInitialState();
         setState(fresh);
       },
-      pushAlert: (a: Omit<Alert, "id" | "timestamp">) => {
-        setState((s) => {
-          if (!s) return s;
-          return {
-            ...s,
-            alerts: [
-              {
-                ...a,
-                id: `alert-${Date.now()}`,
-                timestamp: new Date().toISOString(),
-              },
-              ...s.alerts,
-            ],
-          };
+      pushAlert: async (a: Omit<Alert, "id" | "timestamp">) => {
+        await addDoc(collection(db, "alerts"), {
+          ...a,
+          timestamp: new Date().toISOString(),
         });
       },
       login: (user) => {
