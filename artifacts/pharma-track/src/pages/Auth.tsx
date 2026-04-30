@@ -427,7 +427,51 @@ export function Auth() {
                 </button>
               </form>
 
-              <div className="mt-8 text-center">
+              {/* Easier Login Options */}
+              <div className="mt-8 space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 h-px bg-slate-800" />
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Social Access</span>
+                  <div className="flex-1 h-px bg-slate-800" />
+                </div>
+
+                <button 
+                  onClick={() => toast.info("Google Auth", { description: "Supabase Google login integration required." })}
+                  className="w-full py-4 bg-white text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-100 transition-all active:scale-95 shadow-lg shadow-white/5"
+                >
+                  <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="Google" />
+                  Continue with Google
+                </button>
+
+                <div className="flex items-center gap-4 pt-4">
+                  <div className="flex-1 h-px bg-slate-800" />
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Quick Access (Demo)</span>
+                  <div className="flex-1 h-px bg-slate-800" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { role: "MANUFACTURER", icon: Factory, email: "mfg@altaria.com", label: "Mfg" },
+                    { role: "SUPPLIER", icon: Truck, email: "supplier@altaria.com", label: "Sup" },
+                    { role: "LOCAL_SHOP", icon: Store, email: "local@altaria.com", label: "Shop" }
+                  ].map((demo) => (
+                    <button
+                      key={demo.role}
+                      onClick={() => {
+                        setForm({ ...form, email: demo.email, password: "admin123" });
+                        setSelectedRole(demo.role as UserRole);
+                        toast.success(`Loaded ${demo.label} credentials`);
+                      }}
+                      className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group"
+                    >
+                      <demo.icon className="w-5 h-5 text-slate-400 group-hover:text-blue-400 transition-colors" />
+                      <span className="text-[10px] font-bold text-slate-500 group-hover:text-blue-400">{demo.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-10 text-center">
                 <button onClick={() => setState("role-select")} className="text-xs font-bold text-slate-500 hover:text-blue-400 transition-colors flex items-center justify-center gap-1 mx-auto">
                    New Entity? <span className="text-blue-500">Register on Blockchain</span>
                 </button>
