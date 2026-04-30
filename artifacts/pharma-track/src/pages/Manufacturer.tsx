@@ -54,29 +54,45 @@ export function Manufacturer() {
     try {
       // Simulate ledger commit latency for visual drama
       await new Promise((r) => setTimeout(r, 700));
-      
-      const payload = {
-        medicineName: drugName,
-        dosage,
-        expiryDate,
-        destination: region,
-      };
 
-      const response = await fetch("http://localhost:3001/api/shipments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+      // 1. Register the batch in Firebase (which triggers real-time updates)
+      const { chain, pin } = await registerBatch({
+        id: batchId,
+        drugName,
+        manufacturer,
+        quantity: parseInt(dosage) * 100 || 5000, // Example quantity based on dosage
+        manufactureDate,
+        expiryDate,
+        region,
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to register batch on blockchain");
+      let blockchainHash = chain[chain.length - 1].hash;
+      let dispatchPin = pin;
+      
+      // 2. Try predictive routing backend (optional, won't fail the whole process if backend is down)
+      try {
+        const payload = { medicineName: drugName, dosage, expiryDate, destination: region };
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
+
+        const response = await fetch("http://localhost:3001/api/shipments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+           const data = await response.json();
+           // We keep the Firebase pin and hash as the source of truth
+        }
+      } catch (e) {
+        console.log("Predictive backend not running or timed out, falling back to Firebase only.");
       }
 
-      const data = await response.json();
-      const { batchId: newBatchId, dispatchPin, blockchainHash } = data.shipment;
-
       setLastBlockHash(blockchainHash);
-      setLastBatchId(newBatchId);
+      setLastBatchId(batchId);
       setLastDispatchPin(dispatchPin);
       
       toast.success("Block committed to ledger", {
@@ -88,16 +104,16 @@ export function Manufacturer() {
       pushAlert({
         level: "warning",
         title: "New Dispatch Ready",
-        message: `Batch ${newBatchId} (${drugName}) has been packed by ${manufacturer}. Ready for logistics pickup. Access PIN: ${dispatchPin}`,
+        message: `Batch ${batchId} (${drugName}) has been packed by ${manufacturer}. Ready for logistics pickup. Access PIN: ${dispatchPin}`,
       });
 
       // Actual Email Integration via Firebase
       if (supplierEmail) {
         try {
-          await addDoc(collection(db, "mail"), {
+          addDoc(collection(db, "mail"), {
             to: supplierEmail,
             message: {
-              subject: `PharmaTrace: New Batch Ready for Pickup (${newBatchId})`,
+              subject: `PharmaTrace: New Batch Ready for Pickup (${batchId})`,
               html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
                   <h2 style="color: #2563eb;">New Batch Ready for Pickup</h2>
@@ -105,7 +121,7 @@ export function Manufacturer() {
                   <p>A new batch of <strong>${drugName}</strong> has been securely packed by <strong>${manufacturer}</strong> and is ready for your logistics pickup.</p>
                   <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
                     <ul style="list-style: none; padding: 0; margin: 0; line-height: 1.8;">
-                      <li><strong>📦 Batch ID:</strong> <span style="font-family: monospace;">${newBatchId}</span></li>
+                      <li><strong>📦 Batch ID:</strong> <span style="font-family: monospace;">${batchId}</span></li>
                       <li><strong>📍 Origin:</strong> ${region}</li>
                       <li><strong>🔑 Access PIN:</strong> <span style="font-size: 1.2em; font-weight: bold; font-family: monospace; color: #2563eb; background: #dbeafe; padding: 2px 6px; border-radius: 4px;">${dispatchPin}</span></li>
                     </ul>
@@ -118,14 +134,14 @@ export function Manufacturer() {
                 </div>
               `
             }
-          });
+          }).catch(console.error);
           toast.success("Email Queued", { description: `Notification queued for ${supplierEmail} in Firebase.` });
         } catch (e: any) {
           console.error("Error queueing email in Firebase:", e);
           toast.error("Firebase Email failed", { description: "Falling back to local email client." });
           // Fallback for hackathon demo: open local email client
-          const subject = encodeURIComponent(`PharmaTrace: New Batch Ready for Pickup (${newBatchId})`);
-          const body = encodeURIComponent(`Hello,\n\nA new batch of ${drugName} has been securely packed by ${manufacturer} and is ready for your logistics pickup.\n\nBatch ID: ${newBatchId}\nOrigin: ${region}\nAccess PIN: ${dispatchPin}\n\nPlease enter this secure PIN in the PharmaTrace portal to verify and take ownership of the batch on the blockchain ledger.\n\nPharmaTrace Provenance Console`);
+          const subject = encodeURIComponent(`PharmaTrace: New Batch Ready for Pickup (${batchId})`);
+          const body = encodeURIComponent(`Hello,\n\nA new batch of ${drugName} has been securely packed by ${manufacturer} and is ready for your logistics pickup.\n\nBatch ID: ${batchId}\nOrigin: ${region}\nAccess PIN: ${dispatchPin}\n\nPlease enter this secure PIN in the PharmaTrace portal to verify and take ownership of the batch on the blockchain ledger.\n\nPharmaTrace Provenance Console`);
           window.location.href = `mailto:${supplierEmail}?subject=${subject}&body=${body}`;
         }
       }

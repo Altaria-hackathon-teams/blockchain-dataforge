@@ -22,6 +22,7 @@ import { motion } from "framer-motion";
 
 const NAV = [
   { path: "/dashboard", label: "Overview", icon: Activity, roles: ["MANUFACTURER", "SUPPLIER", "LOCAL_SHOP"] },
+  { path: "/blockchain", label: "Web3 Hub", icon: GitBranch, roles: ["MANUFACTURER", "SUPPLIER", "LOCAL_SHOP"] },
   { path: "/manufacturer", label: "Add Batch", icon: Boxes, roles: ["MANUFACTURER"] },
   { path: "/track", label: "Track", icon: GitBranch, roles: ["MANUFACTURER", "SUPPLIER"] },
   { path: "/verify", label: "Verify", icon: ShieldCheck, roles: ["SUPPLIER", "LOCAL_SHOP"] },

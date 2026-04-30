@@ -2,9 +2,6 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   StoreContext,
   buildInitialState,
-  loadPersistedState,
-  persistState,
-  clearPersistedState,
   type AppState,
   type Alert,
   type Batch,
@@ -21,6 +18,7 @@ import {
   query, 
   orderBy, 
   limit,
+  getDocs,
   writeBatch
 } from "firebase/firestore";
 
@@ -29,48 +27,85 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    
-    // Initialize base state
+
+    // Seed database if empty, then start listening
     (async () => {
-      const persisted = loadPersistedState();
-      if (persisted) {
-        if (!cancelled) setState(persisted);
-      } else {
-        const fresh = await buildInitialState();
-        if (!cancelled) setState(fresh);
+      try {
+        const batchesSnap = await getDocs(collection(db, "batches"));
+        
+        if (batchesSnap.empty) {
+          console.log("Database is empty. Seeding with initial state...");
+          const fresh = await buildInitialState();
+          
+          // Use a Firestore Batch to write all seed data safely
+          const firestoreBatch = writeBatch(db);
+          
+          fresh.batches.forEach(b => {
+            firestoreBatch.set(doc(db, "batches", b.id), b);
+          });
+          
+          Object.entries(fresh.chains).forEach(([batchId, chain]) => {
+            firestoreBatch.set(doc(db, "chains", batchId), { blocks: chain });
+          });
+          
+          fresh.alerts.forEach(a => {
+            firestoreBatch.set(doc(db, "alerts", a.id), a);
+          });
+
+          await firestoreBatch.commit();
+          console.log("Database seeded successfully.");
+        }
+      } catch (err) {
+        console.error("Firebase Seeding Error (check Firestore Rules!):", err);
       }
-    })();
 
-    // Listen to Firebase Collections for real-time updates
-    const unsubBatches = onSnapshot(collection(db, "batches"), (snap) => {
-      const batches = snap.docs.map(d => d.data() as Batch);
-      setState(s => s ? { ...s, batches } : s);
-    });
+      // Start Real-time Listeners after ensuring data exists
+      if (cancelled) return;
 
-    const unsubAlerts = onSnapshot(query(collection(db, "alerts"), orderBy("timestamp", "desc"), limit(20)), (snap) => {
-      const alerts = snap.docs.map(d => ({ ...d.data(), id: d.id } as Alert));
-      setState(s => s ? { ...s, alerts } : s);
-    });
-
-    const unsubChains = onSnapshot(collection(db, "chains"), (snap) => {
-      const chains: Record<string, Block[]> = {};
-      snap.docs.forEach(d => {
-        chains[d.id] = d.data().blocks as Block[];
+      // Initialize base state immediately so UI doesn't hang
+      setState(s => s || {
+        batches: [],
+        chains: {},
+        alerts: [],
+        knownCounterfeitId: "CTRF-9981",
+        currentUser: null
       });
-      setState(s => s ? { ...s, chains } : s);
-    });
+
+      const unsubBatches = onSnapshot(collection(db, "batches"), (snap) => {
+        const batches = snap.docs.map(d => d.data() as Batch);
+        setState(s => s ? { ...s, batches } : null);
+      }, (err) => {
+        console.error("Batches Listener Error:", err);
+      });
+
+      const unsubAlerts = onSnapshot(query(collection(db, "alerts"), orderBy("timestamp", "desc"), limit(20)), (snap) => {
+        const alerts = snap.docs.map(d => ({ ...d.data(), id: d.id } as Alert));
+        setState(s => s ? { ...s, alerts } : null);
+      }, (err) => {
+        console.error("Alerts Listener Error:", err);
+      });
+
+      const unsubChains = onSnapshot(collection(db, "chains"), (snap) => {
+        const chains: Record<string, Block[]> = {};
+        snap.docs.forEach(d => {
+          chains[d.id] = d.data().blocks as Block[];
+        });
+        setState(s => s ? { ...s, chains, knownCounterfeitId: "CTRF-9981", currentUser: s.currentUser } : null);
+      }, (err) => {
+        console.error("Chains Listener Error:", err);
+      });
+
+      return () => {
+        unsubBatches();
+        unsubAlerts();
+        unsubChains();
+      };
+    })();
 
     return () => {
       cancelled = true;
-      unsubBatches();
-      unsubAlerts();
-      unsubChains();
     };
   }, []);
-
-  useEffect(() => {
-    if (state) persistState(state);
-  }, [state]);
 
   const value = useMemo(() => {
     if (!state) return null;
@@ -89,15 +124,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const pin = Math.floor(100000 + Math.random() * 900000).toString();
         const newBatch: Batch = { ...input, status: "MANUFACTURED", dispatchPin: pin };
         
-        // Write to Firebase
-        await setDoc(doc(db, "batches", input.id), newBatch);
-        await setDoc(doc(db, "chains", input.id), { blocks: chain });
-        await addDoc(collection(db, "alerts"), {
+        // Write to Firebase (non-blocking to prevent UI freeze on slow networks)
+        setDoc(doc(db, "batches", input.id), newBatch).catch(e => toast.error("Firebase Batch Error: " + e.message));
+        setDoc(doc(db, "chains", input.id), { blocks: chain }).catch(e => toast.error("Firebase Chain Error: " + e.message));
+        addDoc(collection(db, "alerts"), {
           level: "info",
           title: "New batch committed to ledger",
           message: `${input.drugName} (${input.id}) registered by ${input.manufacturer}.`,
           timestamp: ts,
-        });
+        }).catch(e => toast.error("Firebase Alert Error: " + e.message));
 
         return { chain, pin };
       },
@@ -123,6 +158,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const batchRef = doc(db, "batches", batchId);
         await setDoc(batchRef, { status: newStatus }, { merge: true });
 
+        let alertTitle = "";
+        let alertMessage = "";
+        
+        if (stop.event === "SHIPPED_TO_DISTRIBUTOR") {
+          alertTitle = "Shipment En Route to Distributor";
+          alertMessage = `Manufacturer has dispatched batch ${batchId}. Expected soon at Regional Distributor.`;
+        } else if (stop.event === "SHIPPED_TO_PHARMACY") {
+          alertTitle = "Shipment En Route to Pharmacy";
+          alertMessage = `Distributor has dispatched batch ${batchId} to Local Pharmacy.`;
+        }
+
+        if (alertTitle) {
+          addDoc(collection(db, "alerts"), {
+            level: "info",
+            title: alertTitle,
+            message: alertMessage,
+            timestamp: ts,
+          }).catch(e => console.error("Firebase Alert Error: " + e.message));
+        }
+
         return next;
       },
       resetDemo: async () => {
@@ -131,10 +186,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setState(fresh);
       },
       pushAlert: async (a: Omit<Alert, "id" | "timestamp">) => {
-        await addDoc(collection(db, "alerts"), {
+        addDoc(collection(db, "alerts"), {
           ...a,
           timestamp: new Date().toISOString(),
-        });
+        }).catch(e => toast.error("Firebase Alert Error: " + e.message));
       },
       login: (user: User) => {
         setState((s) => s ? { ...s, currentUser: user } : null);

@@ -1,0 +1,14 @@
+{
+  "name": "pharma-chain-blockchain",
+  "version": "1.0.0",
+  "description": "Smart contract for Predictive Pharma-Chain",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "node": "hardhat node"
+  },
+  "devDependencies": {
+    "hardhat": "^2.22.3",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0"
+  }
+}

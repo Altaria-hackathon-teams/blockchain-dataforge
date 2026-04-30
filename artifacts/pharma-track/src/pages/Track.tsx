@@ -9,30 +9,34 @@ import { toast } from "sonner";
 import type { EventType } from "@/lib/blockchain";
 import { motion } from "framer-motion";
 
-const NEXT_STEP: Partial<Record<EventType, { event: EventType; label: string; location: string; handler: string }>> = {
+const NEXT_STEP: Partial<Record<EventType, { event: EventType; label: string; location: string; handler: string; allowedRole: string }>> = {
   MANUFACTURED: {
     event: "SHIPPED_TO_DISTRIBUTOR",
     label: "Ship to Distributor",
     location: "Outbound Logistics",
     handler: "Dispatch",
+    allowedRole: "MANUFACTURER",
   },
   SHIPPED_TO_DISTRIBUTOR: {
     event: "RECEIVED_DISTRIBUTOR",
     label: "Receive at Distributor",
     location: "Regional Distributor",
     handler: "Warehouse Mgr",
+    allowedRole: "SUPPLIER",
   },
   RECEIVED_DISTRIBUTOR: {
     event: "SHIPPED_TO_PHARMACY",
     label: "Ship to Pharmacy",
     location: "Last-mile Logistics",
     handler: "Carrier",
+    allowedRole: "SUPPLIER",
   },
   SHIPPED_TO_PHARMACY: {
     event: "RECEIVED_PHARMACY",
     label: "Receive at Pharmacy",
     location: "Retail Pharmacy",
     handler: "Pharmacist",
+    allowedRole: "LOCAL_SHOP",
   },
 };
 
@@ -44,9 +48,10 @@ function statusTone(status: string) {
 }
 
 export function Track() {
-  const { state, advanceBatch } = useStore();
+  const { state, advanceBatch, pushAlert } = useStore();
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(state.batches[0]?.id ?? null);
+  const user = state.currentUser;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -78,6 +83,16 @@ export function Track() {
         description: `0x${newHash.slice(0, 8)}…`,
       });
     }
+  }
+
+  function handleSendCodeToLocalShop() {
+    if (!selected) return;
+    pushAlert({
+      level: "info",
+      title: `Dispatch Code for ${selected.drugName}`,
+      message: `Supplier has dispatched Batch ${selected.id} to your location. The access code to verify delivery is: ${selected.dispatchPin}`,
+    });
+    toast.success("Dispatch code sent to Local Shop");
   }
 
   return (
@@ -161,7 +176,12 @@ export function Track() {
                     <Badge className={`border ${statusTone(selected.status)}`} variant="outline">
                       {selected.status.replace("_", " ").toLowerCase()}
                     </Badge>
-                    {nextStep && (
+                    {user?.role === "SUPPLIER" && selected.dispatchPin && nextStep && nextStep.event.includes("PHARMACY") && (
+                      <Button variant="secondary" onClick={handleSendCodeToLocalShop}>
+                        Alert Local Shop (Send Code)
+                      </Button>
+                    )}
+                    {nextStep && user?.role === nextStep.allowedRole && (
                       <Button onClick={handleAdvance} data-testid="button-advance">
                         {nextStep.event.includes("SHIPPED") ? (
                           <Truck className="h-4 w-4 mr-2" />

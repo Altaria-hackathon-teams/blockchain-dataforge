@@ -60,11 +60,16 @@ export function Verify() {
     setServerBatch(null);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s timeout
+
       const response = await fetch("http://localhost:3001/api/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ batchId: batchId.trim(), pin: pin.trim() })
+        body: JSON.stringify({ batchId: batchId.trim(), pin: pin.trim() }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       const data = await response.json();
 

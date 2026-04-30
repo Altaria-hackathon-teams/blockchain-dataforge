@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/lib/ThemeContext";
 import { AppShell } from "@/components/AppShell";
 import { Overview } from "@/pages/Overview";
 import { Manufacturer } from "@/pages/Manufacturer";
+import { BlockchainDashboard } from "@/pages/BlockchainDashboard";
 import { Track } from "@/pages/Track";
 import { Verify } from "@/pages/Verify";
 import { Insights } from "@/pages/Insights";
@@ -23,6 +24,7 @@ function DashboardRouter() {
       <Switch>
         <Route path="/dashboard" component={Overview} />
         <Route path="/manufacturer" component={Manufacturer} />
+        <Route path="/blockchain" component={BlockchainDashboard} />
         <Route path="/track" component={Track} />
         <Route path="/verify" component={Verify} />
         <Route path="/insights" component={Insights} />
