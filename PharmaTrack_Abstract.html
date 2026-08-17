@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PharmaTrack – Project Abstract</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Georgia&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 12pt;
+      color: #1a1a1a;
+      background: #fff;
+      line-height: 1.8;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 20px;
+      padding: 25mm 25mm 20mm 25mm;
+      background: #fff;
+      box-shadow: 0 0 12px rgba(0,0,0,0.15);
+      page-break-after: always;
+      position: relative;
+    }
+
+    .doc-header {
+      border-top: 4px solid #1a3a6e;
+      border-bottom: 2px solid #1a3a6e;
+      padding: 14px 0 10px;
+      margin-bottom: 26px;
+      text-align: center;
+    }
+
+    .doc-header .track-label {
+      font-size: 9.5pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #1a3a6e;
+      margin-bottom: 4px;
+    }
+
+    .doc-header h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21pt;
+      font-weight: 700;
+      color: #0d1f45;
+      line-height: 1.2;
+      margin-bottom: 5px;
+    }
+
+    .doc-header .subtitle {
+      font-size: 11pt;
+      font-style: italic;
+      color: #444;
+    }
+
+    .meta-bar {
+      display: flex;
+      justify-content: space-between;
+      background: #f0f4fb;
+      border-left: 4px solid #1a3a6e;
+      padding: 8px 14px;
+      font-size: 9.5pt;
+      color: #333;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-family: Georgia, serif;
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0d1f45;
+      border-bottom: 1.5px solid #1a3a6e;
+      padding-bottom: 4px;
+      margin-top: 22px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      margin-bottom: 10px;
+      text-align: justify;
+    }
+
+    ul {
+      margin: 6px 0 12px 22px;
+    }
+
+    ul li {
+      margin-bottom: 6px;
+      text-align: justify;
+    }
+
+    ul.sub {
+      margin-left: 18px;
+      list-style-type: circle;
+    }
+
+    ol {
+      margin: 6px 0 12px 22px;
+    }
+
+    ol li {
+      margin-bottom: 6px;
+      text-align: justify;
+    }
+
+    .highlight-box {
+      background: #eef3fb;
+      border: 1px solid #b0c4de;
+      border-left: 4px solid #1a3a6e;
+      padding: 10px 14px;
+      margin: 14px 0;
+      font-size: 11pt;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 20px;
+      margin: 10px 0;
+    }
+
+    .col-item {
+      background: #f7f9fd;
+      border: 1px solid #cddaf0;
+      padding: 8px 12px;
+      font-size: 10.5pt;
+    }
+
+    .col-item strong {
+      display: block;
+      color: #0d1f45;
+      font-size: 10pt;
+      margin-bottom: 3px;
+    }
+
+    .image-placeholder {
+      width: 100%;
+      height: 260px;
+      border: 2.5px dashed #1a3a6e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f8ff;
+      color: #1a3a6e;
+      font-size: 12pt;
+      font-style: italic;
+      margin: 22px 0 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .image-caption {
+      text-align: center;
+      font-size: 10pt;
+      font-style: italic;
+      color: #555;
+      margin-bottom: 16px;
+    }
+
+    .page-footer {
+      position: absolute;
+      bottom: 12mm;
+      left: 25mm;
+      right: 25mm;
+      display: flex;
+      justify-content: space-between;
+      font-size: 9pt;
+      color: #888;
+      border-top: 1px solid #ccc;
+      padding-top: 6px;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        box-shadow: none;
+        margin: 0;
+        padding: 20mm 25mm 18mm 25mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <div class="doc-header">
+    <div class="track-label">Hackathon Track: Healthcare &amp; Biomedical Signal Processing</div>
+    <h1>PharmaTrack</h1>
+    <div class="subtitle">Predictive Pharmaceutical Provenance &amp; Supply Chain Intelligence System</div>
+  </div>
+
+  <div class="meta-bar">
+    <span><strong>Category:</strong> Healthcare Innovation &amp; Medical Safety</span>
+    <span><strong>Domain:</strong> Supply Chain &amp; Biomedical Analytics</span>
+    <span><strong>Type:</strong> Full-Stack System</span>
+  </div>
+
+  <div class="section-title">Abstract</div>
+  <p>
+    The global pharmaceutical supply chain is one of the most critical yet vulnerable ecosystems
+    in modern healthcare. With counterfeit medicines accounting for a significant share of
+    medications in circulation — particularly in developing economies — the consequences range
+    from treatment failure to patient death. Simultaneously, inefficient distribution networks
+    cause life-saving medications to expire in warehouses while critical shortages emerge in
+    high-demand regions. The absence of real-time traceability, intelligent demand planning,
+    and end-to-end verification mechanisms creates an environment where patient safety is
+    perpetually compromised.
+  </p>
+  <p>
+    <strong>PharmaTrack</strong> is an integrated, intelligent pharmaceutical provenance system
+    that directly addresses these systemic failures. It provides an immutable, tamper-proof
+    record of every drug batch from the point of manufacture to the final point of consumption.
+    By embedding predictive intelligence directly into the supply chain workflow, the system
+    enables proactive decision-making rather than reactive crisis management.
+  </p>
+  <p>
+    The platform is designed around a "Mission Control" philosophy — giving every stakeholder
+    in the pharmaceutical ecosystem (manufacturers, distributors, regulators, pharmacists, and
+    patients) a unified, real-time view of the entire supply chain through a premium,
+    intuitive dashboard interface. This abstract details the core architecture, problem domain,
+    proposed solution, functional modules, impact potential, and future roadmap of PharmaTrack.
+  </p>
+
+  <div class="section-title">1. Problem Statement</div>
+  <p>
+    The challenges in today's pharmaceutical supply chain can be categorized into four
+    interconnected problem domains:
+  </p>
+  <ul>
+    <li>
+      <strong>Counterfeit Drug Proliferation:</strong> Fraudulent medications enter the supply
+      chain at multiple points — during manufacturing, distribution, and retail. Without a
+      standardized, verifiable audit trail, detecting these counterfeit products before they
+      reach patients is nearly impossible with existing paper-based or siloed digital systems.
+    </li>
+    <li>
+      <strong>Supply-Demand Misalignment:</strong> Current distribution models are largely
+      reactive. Manufacturers and distributors do not have access to predictive analytics that
+      can forecast regional demand surges. This results in stockouts of critical medications in
+      high-need areas and excessive expiry-related waste elsewhere.
+    </li>
+    <li>
+      <strong>Opaque Provenance:</strong> Patients, pharmacists, and regulators have no reliable,
+      accessible mechanism to trace the complete origin and journey of a specific drug batch.
+      This opacity creates an environment of low trust, regulatory non-compliance, and
+      accountability gaps.
+    </li>
+    <li>
+      <strong>Logistics Inefficiency:</strong> Distribution routing is largely manual and
+      suboptimal, leading to delayed deliveries, increased operational costs, and supply chain
+      disruptions during high-demand events such as epidemics or seasonal disease surges.
+    </li>
+  </ul>
+
+  <div class="highlight-box">
+    <strong>Core Challenge:</strong> The pharmaceutical supply chain lacks a single, unified
+    system that simultaneously guarantees drug authenticity, predicts demand, optimizes
+    distribution, and presents all of this in a format that every stakeholder can immediately
+    understand and trust.
+  </div>
+
+  <div class="page-footer">
+    <span>PharmaTrack — Healthcare &amp; Biomedical Signal Processing Track</span>
+    <span>Page 1 of 5</span>
+  </div>
+</div>
+
+
+<!-- PAGE 2 -->
+<div class="page">
+  <div class="section-title">2. Proposed Solution</div>
+  <p>
+    PharmaTrack addresses all four problem domains through a unified, multi-layered system
+    that operates on three fundamental pillars:
+  </p>
+  <ol>
+    <li>
+      <strong>Immutable Data Provenance:</strong> Every drug batch registered in the system
+      is assigned a cryptographically secured, tamper-proof digital identity. This record
+      captures the full lifecycle of the batch — manufacturing date, quality certificates,
+      composition, expiry date, transit checkpoints, and final destination. Once committed,
+      this record cannot be altered or deleted, creating an irrefutable audit trail.
+    </li>
+    <li>
+      <strong>Predictive Intelligence Engine:</strong> An embedded analytics layer continuously
+      processes historical supply, distribution, and consumption data to generate forward-looking
+      insights. This engine identifies anomalies in consumption patterns, forecasts regional
+      demand surges weeks in advance, and scores supply chain risk at both the batch and
+      regional level.
+    </li>
+    <li>
+      <strong>Smart Logistics Orchestration:</strong> Real-time routing algorithms dynamically
+      optimize delivery pathways, accounting for current stock levels, predicted demand, transit
+      times, and disruption events. The result is a living logistics map that keeps supply
+      precisely aligned with demand.
+    </li>
+  </ol>
+  <p>
+    Together, these three pillars create a closed-loop, self-improving system where every
+    verification scan and completed delivery feeds back into the intelligence engine,
+    continuously improving its predictions and routing accuracy.
+  </p>
+
+  <div class="section-title">3. Core Functional Modules</div>
+  <p>
+    PharmaTrack is organized into six distinct, purpose-built functional modules, each
+    designed to address a specific stakeholder need within the supply chain:
+  </p>
+  <ul>
+    <li>
+      <strong>Module 1 — Overview Dashboard:</strong> A real-time, at-a-glance control centre
+      displaying the current state of the entire supply chain. Stakeholders can see live batch
+      statuses, active alerts, regional stock levels, and system health metrics in a single
+      unified view. Designed for executive-level decision-making and rapid operational response.
+    </li>
+    <li>
+      <strong>Module 2 — Batch Registration (Manufacturer Portal):</strong> Enables
+      manufacturers to register new drug batches into the secure provenance system. Each batch
+      is assigned a unique, cryptographically generated identifier along with all relevant
+      metadata (composition, lot number, production timestamp, quality approval status, expiry
+      date). The data is encrypted and validated before being committed to the immutable ledger.
+    </li>
+    <li>
+      <strong>Module 3 — Supply Chain Tracking (Timeline View):</strong> Provides a visual,
+      chronological timeline of every checkpoint a drug batch has passed through — from the
+      factory floor, through distribution hubs, to the final pharmacy shelf. Each checkpoint
+      is time-stamped and geo-tagged, creating a complete, verifiable chain of custody.
+    </li>
+    <li>
+      <strong>Module 4 — Counterfeit Verification Engine:</strong> Any stakeholder can input a
+      batch ID to instantly verify its authenticity against the immutable ledger. The system
+      computes a real-time "Trust Score" and flags any anomalies, duplications, or deviations
+      from the expected supply path. Counterfeit batches are immediately quarantined and flagged
+      with real-time alerts to all connected stakeholders.
+    </li>
+    <li>
+      <strong>Module 5 — AI Demand Forecasting &amp; Insights:</strong> An analytics module
+      that presents predicted demand trends across regions and drug categories using interactive
+      visual charts. Highlights anticipated shortage events, overstock risks, and seasonal demand
+      patterns. Enables procurement teams to make proactive ordering decisions weeks before a
+      shortage materialises.
+    </li>
+    <li>
+      <strong>Module 6 — Smart Routing &amp; Logistics Optimization:</strong> An intelligent
+      distribution mapping tool that visualizes the entire delivery network and recommends
+      optimal routing paths for each batch. Automatically recalculates routes in response to
+      distribution disruptions, ensuring continuous supply even during high-demand emergencies.
+    </li>
+  </ul>
+
+  <div class="page-footer">
+    <span>PharmaTrack — Healthcare &amp; Biomedical Signal Processing Track</span>
+    <span>Page 2 of 5</span>
+  </div>
+</div>
+
+
+<!-- PAGE 3 -->
+<div class="page">
+  <div class="section-title">4. System Architecture &amp; Data Flow</div>
+  <p>
+    The PharmaTrack architecture is organized into three distinct, interconnected tiers,
+    each serving a dedicated role in the system's overall operation. Data flows continuously
+    and securely between all three tiers, creating a real-time, self-consistent view of the
+    pharmaceutical supply chain.
+  </p>
+  <ul>
+    <li>
+      <strong>Tier 1 — Data Input Layer:</strong> This is the entry point of all supply chain
+      information. Manufacturer data (Manufacturer ID, Batch Details, Production Date, Quality
+      Certificates) and Drug Registration data (Drug ID, Composition, Approval Details, Expiry
+      Date) are collected here. Before proceeding further, all data is subjected to strict
+      validation and encryption, ensuring only verified, complete, and unaltered information
+      enters the system.
+    </li>
+    <li>
+      <strong>Tier 2 — Core Processing Engine:</strong> The heart of the system. This tier
+      consists of two deeply integrated sub-systems:
+      <ul class="sub">
+        <li>
+          <strong>Immutable Cryptographic Ledger:</strong> Stores all validated batch records in
+          a tamper-proof, permanently time-stamped format. Every record is cryptographically
+          linked to its predecessor, making retrospective alteration mathematically infeasible.
+        </li>
+        <li>
+          <strong>AI Predictive Analytics Engine:</strong> Runs continuously alongside the ledger,
+          analyzing all incoming and historical data to perform Demand Forecasting, Risk
+          Assessment, Anomaly Detection, and Supply Risk Scoring. It communicates
+          bi-directionally with the ledger — drawing from historical records to improve
+          predictions and feeding anomaly detections back to trigger verification alerts.
+        </li>
+      </ul>
+    </li>
+    <li>
+      <strong>Tier 3 — Output &amp; End-User Layer:</strong> All processed data and AI-generated
+      insights surface here as two primary outputs: Counterfeit Verification (Product
+      Authentication, Origin Verification, Real-time Alerts, Trust Score) and Smart Routing
+      Optimization (Optimal Route Planning, Delivery ETA Prediction, Cost Optimization,
+      Disruption Handling).
+    </li>
+  </ul>
+  <p>
+    A critical design feature is the <strong>Continuous Feedback Loop</strong> — every completed
+    delivery, verification scan, and detected anomaly is fed back into the Data Input Layer for
+    re-analysis, making the system's predictive accuracy and routing efficiency improve organically
+    over time.
+  </p>
+
+  <!-- IMAGE PLACEHOLDER -->
+  <div class="image-placeholder">
+    [ Insert System Architecture Block Diagram Here ]
+  </div>
+  <div class="image-caption">
+    Figure 1: PharmaTrack — Three-Tier System Architecture &amp; Data Flow Diagram
+  </div>
+
+  <div class="page-footer">
+    <span>PharmaTrack — Healthcare &amp; Biomedical Signal Processing Track</span>
+    <span>Page 3 of 5</span>
+  </div>
+</div>
+
+
+<!-- PAGE 4 -->
+<div class="page">
+  <div class="section-title">5. User Experience &amp; Stakeholder Design</div>
+  <p>
+    A key design principle of PharmaTrack is that a technically superior system is worthless
+    if the people who need it cannot use it. The platform is built around a "Mission Control"
+    dashboard philosophy — complex supply chain data is transformed into intuitive, visual,
+    and immediately actionable information for every role:
+  </p>
+  <ul>
+    <li><strong>Manufacturers</strong> interact with a streamlined batch registration form that mirrors familiar logistics workflows, requiring zero specialized training.</li>
+    <li><strong>Distributors &amp; Logistics Managers</strong> work with an interactive routing map that makes the optimal delivery path visually obvious, eliminating manual route calculation.</li>
+    <li><strong>Pharmacists &amp; Regulators</strong> use the one-click Verification Engine which produces an instant, unambiguous Trust Score and a clear "Authentic" or "Flagged" status for any batch.</li>
+    <li><strong>Procurement Teams</strong> rely on the AI Insights dashboard to make forward-looking purchasing decisions from clear, visual demand forecasting charts.</li>
+    <li><strong>Patients</strong> are the ultimate beneficiaries — protected upstream by the system's integrity without needing to interact with it directly.</li>
+  </ul>
+
+  <div class="section-title">6. Scale of Impact</div>
+  <div class="two-col">
+    <div class="col-item">
+      <strong>Patient Safety</strong>
+      Eliminates the risk of patients unknowingly consuming counterfeit or tampered medications,
+      directly saving lives at global scale.
+    </div>
+    <div class="col-item">
+      <strong>Economic Savings</strong>
+      Reduces billions in annual losses caused by counterfeit drug recalls, expired stock, and
+      inefficient distribution overhead.
+    </div>
+    <div class="col-item">
+      <strong>Healthcare Equity</strong>
+      Intelligent routing proactively ensures life-saving medications reach underserved and
+      high-demand regions before shortages occur.
+    </div>
+    <div class="col-item">
+      <strong>Regulatory Compliance</strong>
+      Provides regulators with a complete, immutable audit trail for every batch — meeting
+      and exceeding international pharmaceutical traceability standards.
+    </div>
+    <div class="col-item">
+      <strong>Waste Reduction</strong>
+      Predictive demand prevents overproduction and reduces medication expiry waste,
+      supporting sustainability goals across the healthcare sector.
+    </div>
+    <div class="col-item">
+      <strong>Trust Restoration</strong>
+      Restores patient, pharmacist, and regulatory confidence in the supply chain through
+      radical transparency and cryptographic proof.
+    </div>
+  </div>
+
+  <div class="section-title">7. Practicality &amp; Feasibility</div>
+  <ul>
+    <li><strong>Modular Architecture:</strong> Individual components can be deployed independently and integrated incrementally into existing workflows, lowering the barrier to adoption.</li>
+    <li><strong>Scalability:</strong> Designed to handle millions of concurrent batch records and transactions without performance degradation, viable for national and global scale.</li>
+    <li><strong>Cross-border Adaptability:</strong> Data validation and compliance modules are configurable to meet the regulatory frameworks of different countries and regions.</li>
+    <li><strong>Low Integration Friction:</strong> Exposes standardized interfaces that connect with existing inventory management and enterprise resource planning systems, minimizing disruption to established operations.</li>
+    <li><strong>Offline Resilience:</strong> Critical verification and tracking functions can operate in low-connectivity environments, making the system viable for developing economies and remote healthcare facilities.</li>
+  </ul>
+
+  <div class="page-footer">
+    <span>PharmaTrack — Healthcare &amp; Biomedical Signal Processing Track</span>
+    <span>Page 4 of 5</span>
+  </div>
+</div>
+
+
+<!-- PAGE 5 -->
+<div class="page">
+  <div class="section-title">8. Novelty &amp; Innovation</div>
+  <p>
+    What distinguishes PharmaTrack from existing pharmaceutical traceability solutions is the
+    depth of its integration and the intelligence layer built directly into the supply chain
+    workflow. Most existing systems solve only one problem in isolation. PharmaTrack uniquely
+    unifies all three — security, intelligence, and logistics — in a single coherent platform
+    with a feedback loop that makes each component stronger over time.
+  </p>
+  <ul>
+    <li><strong>Unified Intelligence:</strong> Immutable data integrity, AI-powered prediction, and smart logistics optimization are tightly integrated — the output of one directly feeds the input of another.</li>
+    <li><strong>Client-Integrated Security:</strong> Cryptographic verification operates at the point of use — instant, network-independent, and requiring no trust in any central authority.</li>
+    <li><strong>Real-Time Feedback Architecture:</strong> The Continuous Feedback Loop transforms the system from a static record-keeper into a living, learning supply chain intelligence platform.</li>
+    <li><strong>"Mission Control" UX Paradigm:</strong> Applying an aerospace-grade, situational-awareness dashboard model to pharmaceutical logistics is a unique approach that drastically improves the speed and accuracy of human decision-making under pressure.</li>
+  </ul>
+
+  <div class="section-title">9. Future Progress Potential &amp; Roadmap</div>
+  <ul>
+    <li>
+      <strong>Phase 1 — IoT Cold-Chain Integration:</strong> Integration with IoT sensor networks
+      to monitor temperature, humidity, and light exposure for climate-sensitive medications (vaccines,
+      biologics) in real-time throughout transit. Any deviation from safe conditions triggers an
+      instant alert and automatic batch quarantine.
+    </li>
+    <li>
+      <strong>Phase 2 — Direct-to-Consumer Verification App:</strong> A lightweight mobile application
+      enabling patients to independently verify the authenticity of their own medications by scanning
+      a batch identifier, democratizing supply chain transparency to the end consumer.
+    </li>
+    <li>
+      <strong>Phase 3 — Regulatory API Integration:</strong> Direct, secure connections with national
+      and international regulatory bodies to enable real-time license validation, automatic compliance
+      reporting, and streamlined drug recall management.
+    </li>
+    <li>
+      <strong>Phase 4 — Biomedical Signal Analytics:</strong> Extension of the AI analytics layer to
+      process real-world health signal data (regional disease outbreak patterns, hospital admission rates)
+      to make demand forecasting hyper-local and medically precise — directly aligned with the Biomedical
+      Signal Processing dimension of this hackathon track.
+    </li>
+    <li>
+      <strong>Phase 5 — Global Supply Network Collaboration:</strong> A federated model enabling
+      multiple pharmaceutical companies and national health systems to share anonymized supply chain
+      intelligence, creating a global early-warning system for medication shortages and counterfeit
+      drug outbreaks.
+    </li>
+  </ul>
+
+  <div class="section-title">10. Conclusion</div>
+  <p>
+    PharmaTrack represents a fundamental rethinking of how pharmaceutical supply chains should be
+    managed in the 21st century. By unifying immutable data provenance, artificial intelligence,
+    and smart logistics orchestration into a single, intuitive platform, it directly addresses the
+    four most critical failures in today's pharmaceutical ecosystem: counterfeit proliferation,
+    supply-demand misalignment, provenance opacity, and logistics inefficiency.
+  </p>
+  <p>
+    The system is designed to be scalable, practically deployable, and continuously self-improving —
+    growing more accurate and more intelligent with every batch registered, every delivery completed,
+    and every verification performed.
+  </p>
+
+  <div class="highlight-box">
+    <strong>PharmaTrack's core promise:</strong> Every medication in the supply chain is authentic,
+    every patient is protected, and every stakeholder has the real-time intelligence they need to
+    make the right decision — before a crisis occurs, not after.
+  </div>
+
+  <div class="page-footer">
+    <span>PharmaTrack — Healthcare &amp; Biomedical Signal Processing Track</span>
+    <span>Page 5 of 5</span>
+  </div>
+</div>
+
+</body>
+</html>
