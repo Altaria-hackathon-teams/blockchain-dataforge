@@ -5,7 +5,12 @@
   "scripts": {
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
+    "dev": "npx pnpm --filter @workspace/pharma-track dev",
+    "dev:server": "npx pnpm --filter @workspace/api-server dev",
+    "dev:blockchain": "cd artifacts/blockchain && npx hardhat node",
+    "deploy:blockchain": "cd artifacts/blockchain && npx hardhat run scripts/deploy.js --network localhost",
+    "dev:ai": "cd artifacts/ai-backend && python main.py"
   },
   "private": true,
   "devDependencies": {
